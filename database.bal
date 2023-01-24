@@ -94,4 +94,48 @@ public class Database {
         return users;
     }
 
+    public function getUser(int id) returns User {
+        User[] users = from var user in self.usersTable
+                    where id == id 
+                    select user;
+        return users[0];
+    }
+
+    public function getBooks() returns Book[] {
+        Book[] books = from var book in self.booksTable 
+                        select book;
+        return books;
+    }
+
+    public function getBook(int id) returns Book {
+        Book[] books = from var book in self.booksTable 
+                        select book;
+        return books[0];
+    }
+
+    public function getAuthors() returns Author[] {
+        Author[] authors = from var author in self.authorsTable 
+                            select author;
+        return authors;
+    }
+
+    public function getAuthor(int id) returns Author {
+        Author[] authors = from var author in self.authorsTable 
+                            select author;
+        return authors[0];
+    }
+
+    public function getUserBooks() returns UserBook[] {
+        UserBook[] userBooks = from var userBook in self.userBooksTable 
+                                select userBook;
+        return userBooks;
+    }
+
+    public function getUserBook(int userId, int bookId) returns UserBook {
+        UserBook[] userBooks = from var userBook in self.userBooksTable 
+                                where userId==userId && bookId==bookId 
+                                select userBook;
+        return userBooks[0];
+    }
+
 }

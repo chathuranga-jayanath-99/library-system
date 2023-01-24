@@ -19,15 +19,11 @@ service /graphql on new graphql:Listener(9090) {
         return "Welcome to the library management system";
     }
 
-    resource function get user() returns User {
-        return { id: 1, fname: "Sandun", lname: "Dilshan", tel: "0787877987"};
-    }
-
     resource function get users() returns User[] {
         return self.database.getUsers();
     }
 
-    // resource function get users () returns User[] {
-        
-    // }           
+    resource function get user(int id) returns User {
+        return self.database.getUser(id);
+    }           
 }
