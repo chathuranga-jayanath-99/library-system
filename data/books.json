@@ -1,0 +1,14 @@
+[
+    {
+        "id": 2000,
+        "name": "harry potter-prison of azkaban",
+        "authorId": 3000,
+        "copies": 5
+    },
+    {
+        "id": 2010,
+        "name": "lord of the rings",
+        "authorId": 3010,
+        "copies": 10
+    }
+]

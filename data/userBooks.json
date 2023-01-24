@@ -1,0 +1,14 @@
+[
+    {
+        "userId": 1200,
+        "bookId": 2010,
+        "expireDate": "2023.01.30",
+        "fine": 0
+    },
+    {
+        "userId": 1210,
+        "bookId": 2000,
+        "expireDate": "2023.01.31",
+        "fine": 0 
+    }
+]
