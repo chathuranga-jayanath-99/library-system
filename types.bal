@@ -3,6 +3,7 @@ type User record {|
     string fname;
     string lname;
     string tel;
+    Book[] books;
 |};
 
 type Book record {|

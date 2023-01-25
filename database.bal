@@ -3,6 +3,8 @@ import ballerina/io;
 public class Database {
     private string dbPath = "./data";
 
+    private boolean debug = true;
+
     // store json
     private json usersJson = ();
     private json booksJson = ();
@@ -21,46 +23,56 @@ public class Database {
     table<UserBook> key(userId, bookId) userBooksTable = table [];
     table<Author> key(id) authorsTable = table [];
 
-    public function init() returns error? {
+    public function init() {
         io:println("db initialized");
+        
+        error? err = self.loadJsons();
+        self.loadTables();
     }
 
-    public function readUsers() returns error? {
+    public function loadJsons() returns error? {
         self.usersJson = check io:fileReadJson(self.dbPath + "/users.json");
         self.usersJsonArr = <json[]> self.usersJson;
 
+        self.booksJson = check io:fileReadJson(self.dbPath + "/books.json"); 
+        self.booksJsonArr = <json[]> self.booksJson;
+
+        self.userBooksJson = check io:fileReadJson(self.dbPath + "/userBooks.json");
+        self.userBooksJsonArr = <json[]> self.userBooksJson;
+
+        self.authorsJson = check io:fileReadJson(self.dbPath + "/authors.json");
+        self.authorsJsonArr = <json[]> self.authorsJson;
+    }
+
+    public function loadTables() {
+        error? err = self.loadUsersTable();
+    }
+
+    public function loadUsersTable() returns error? {
         self.usersTable = table [];
         
         foreach int i in 0...(self.usersJsonArr.length() - 1) {
+            json[] userBorrowedBooks = self.getUserBorrowedBooks(check self.usersJsonArr[i].id);
+            userBorrowedBooks = userBorrowedBooks.cloneReadOnly();
+            
+            if self.debug {
+                io:println("insider db load users table");
+                io:println(userBorrowedBooks);
+            }
+
             self.usersTable.put({
                 id: check self.usersJsonArr[i].id,
                 fname: check self.usersJsonArr[i].fname,
                 lname: check self.usersJsonArr[i].lname,
-                tel: check self.usersJsonArr[i].tel
-            });
-        }
-
-    }
-
-    public function readBooks() returns error? {
-        self.booksJson = check io:fileReadJson(self.dbPath + "/books.json"); 
-        self.booksJsonArr = <json[]> self.booksJson;
-
-        self.booksTable = table [];
-
-        foreach int i in 0...(self.booksJsonArr.length() - 1) {
-            self.booksTable.put({
-                id: check self.booksJsonArr[i].id,
-                name: check self.booksJsonArr[i].name,
-                authorId: check self.booksJsonArr[i].authorId,
-                copies: check self.booksJsonArr[i].copies
+                tel: check self.usersJsonArr[i].tel,
+                books: <Book[]> userBorrowedBooks
             });
         }
     }
+
+ 
 
     public function readUserBooks() returns error? {
-        self.userBooksJson = check io:fileReadJson(self.dbPath + "/userBooks.json");
-        self.userBooksJsonArr = <json[]> self.userBooksJson;
 
         self.userBooksTable = table [];
 
@@ -75,9 +87,6 @@ public class Database {
     }
 
     public function readAuthors() returns error? {
-        self.authorsJson = check io:fileReadJson(self.dbPath + "/authors.json");
-        self.authorsJsonArr = <json[]> self.authorsJson;
-
         self.authorsTable = table [];
 
         foreach int i in 0...(self.authorsJsonArr.length() - 1) {
@@ -136,6 +145,27 @@ public class Database {
                                 where userId==userId && bookId==bookId 
                                 select userBook;
         return userBooks[0];
+    }
+
+    public function getBookAuthor(int bookId) returns Author {
+        json bookAuthor = from var book in self.booksJsonArr 
+                            join var author in self.authorsJsonArr 
+                            on book.authorId equals author.id 
+                            where book.id === bookId 
+                            select author; 
+        return <Author>bookAuthor;
+    }
+
+    public function getUserBorrowedBooks(int userId) returns json[] {
+        json[] books = from var book in self.booksJsonArr 
+                        // join var userBook in self.userBooksTable 
+                        // on userId equals userBook.userId 
+                        select book;
+        if self.debug {
+            io:println("in db, getUserBorrowedBooks");
+            io:println(books);
+        }
+        return books;
     }
 
 }

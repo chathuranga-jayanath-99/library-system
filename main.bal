@@ -9,17 +9,14 @@ service /graphql on new graphql:Listener(9090) {
         self.database = check new;
         io:println("server running");
 
-        error? x = self.database.readUsers();
-        x = self.database.readBooks();
-        x = self.database.readUserBooks();
-        x = self.database.readAuthors();
+        io:println(self.database.booksTable);
     }
 
     resource function get greeting() returns string {
         return "Welcome to the library management system";
     }
 
-    resource function get users() returns User[] {
+    resource function get users() returns User[]|error {
         return self.database.getUsers();
     }
 
