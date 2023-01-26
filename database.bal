@@ -46,6 +46,7 @@ public class Database {
 
     public function loadTables() {
         error? err = self.loadUsersTable();
+        err = self.loadBooksTable(); 
     }
 
     public function loadUsersTable() returns error? {
@@ -70,6 +71,18 @@ public class Database {
         }
     }
 
+    public function loadBooksTable() returns error? {
+        self.booksTable = table [];
+        
+        foreach int i in 0...(self.booksJsonArr.length() - 1) {
+            self.booksTable.put({
+                id: check self.booksJsonArr[i].id,
+                name: check self.booksJsonArr[i].name,
+                authorId: check self.booksJsonArr[i].authorId,
+                copies: check self.booksJsonArr[i].copies
+            });
+        }
+    }
  
 
     public function readUserBooks() returns error? {
@@ -118,6 +131,7 @@ public class Database {
 
     public function getBook(int id) returns Book {
         Book[] books = from var book in self.booksTable 
+                        where book.id == id 
                         select book;
         return books[0];
     }
